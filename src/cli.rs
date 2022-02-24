@@ -1,4 +1,5 @@
 use crate::handle;
+use crate::manager;
 use clap::{arg, command, Command};
 
 pub fn build() -> Command<'static> {
@@ -28,9 +29,16 @@ pub fn build() -> Command<'static> {
         ])
 }
 
-pub fn handle(matches: clap::ArgMatches) {
+pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
     match &matches.subcommand() {
         Some(("init", sub_matches)) => handle::init(sub_matches.is_present("plugin")),
         _ => (),
     }
+    if !&matches.is_present("freeze") {
+        let outdated = manager::is_outdated().await?;
+        if outdated {
+            manager::load_database().await?;
+        }
+    }
+    Ok(())
 }
