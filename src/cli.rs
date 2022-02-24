@@ -1,7 +1,7 @@
 use clap::{arg, command, Command};
 use crate::handle;
 
-fn build() -> Command<'static> {
+pub fn build() -> Command<'static> {
     command!()
         .propagate_version(true)
         .arg_required_else_help(true)
@@ -28,17 +28,11 @@ fn build() -> Command<'static> {
         ])
 }
 
-fn handle(matches: clap::ArgMatches) {
+pub fn handle(matches: clap::ArgMatches) {
     match &matches.subcommand() {
         Some(("init", sub_matches)) => {
             handle::init(sub_matches.is_present("plugin"))
         },
         _ => ()
     }
-}
-
-pub fn run() {
-    let command = build();
-    let matches = command.get_matches();
-    handle(matches);
 }
