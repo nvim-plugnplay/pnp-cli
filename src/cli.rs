@@ -1,5 +1,5 @@
-use clap::{arg, command, Command};
 use crate::handle;
+use clap::{arg, command, Command};
 
 pub fn build() -> Command<'static> {
     command!()
@@ -30,9 +30,7 @@ pub fn build() -> Command<'static> {
 
 pub fn handle(matches: clap::ArgMatches) {
     match &matches.subcommand() {
-        Some(("init", sub_matches)) => {
-            handle::init(sub_matches.is_present("plugin"))
-        },
-        _ => ()
+        Some(("init", sub_matches)) => handle::init(sub_matches.is_present("plugin")),
+        _ => (),
     }
 }

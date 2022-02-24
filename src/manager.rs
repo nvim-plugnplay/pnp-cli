@@ -1,10 +1,11 @@
+use filetime::FileTime;
 use reqwest::Client;
 use serde_json::Value;
-use filetime::FileTime;
 async fn fetch_remote_updatetime() -> i64 {
     let client = Client::builder()
         .user_agent("plugnplay.nvim/0.1.0")
-        .build().unwrap();
+        .build()
+        .unwrap();
     let resp = client.get("https://api.github.com/repos/nvim-plugnplay/database/commits?path=database.json&page=1&per_page=1")
         .send().await.unwrap()
         .text().await.unwrap();
@@ -15,7 +16,11 @@ async fn fetch_remote_updatetime() -> i64 {
 }
 
 async fn fetch_local_updatetime() -> i64 {
-    let path = format!("{}/{}", dirs::data_dir().unwrap().to_str().unwrap(), "pnp/database.json");
+    let path = format!(
+        "{}/{}",
+        dirs::data_dir().unwrap().to_str().unwrap(),
+        "pnp/database.json"
+    );
     let prev_metadata = std::fs::metadata(&path);
     let metadata = match prev_metadata {
         Ok(data) => data,
@@ -29,15 +34,19 @@ async fn fetch_local_updatetime() -> i64 {
             }
         }
     };
-    FileTime::from_last_modification_time(&metadata)
-        .unix_seconds()
+    FileTime::from_last_modification_time(&metadata).unix_seconds()
 }
 
 pub async fn load_database(path: &str, dir: &str) {
     let client = Client::new();
-    let resp = client.get("https://raw.githubusercontent.com/nvim-plugnplay/database/main/database.json")
-        .send().await.unwrap()
-        .bytes().await.unwrap();
+    let resp = client
+        .get("https://raw.githubusercontent.com/nvim-plugnplay/database/main/database.json")
+        .send()
+        .await
+        .unwrap()
+        .bytes()
+        .await
+        .unwrap();
     std::fs::create_dir_all(dir).unwrap();
     let mut file = std::fs::File::create(path).unwrap();
     let mut content = std::io::Cursor::new(resp);
