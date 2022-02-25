@@ -2,6 +2,7 @@ use crate::handle;
 use crate::manager;
 use clap::{arg, command, Command};
 
+/// Generate clap cli command
 pub fn build() -> Command<'static> {
     command!()
         .propagate_version(true)
@@ -29,16 +30,17 @@ pub fn build() -> Command<'static> {
         ])
 }
 
+/// Handle clap cli matches
 pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
-    match &matches.subcommand() {
-        Some(("init", sub_matches)) => handle::init(sub_matches.is_present("plugin")),
-        _ => (),
-    }
     if !&matches.is_present("freeze") {
         let outdated = manager::is_outdated().await?;
         if outdated {
             manager::load_database().await?;
         }
+    }
+    match &matches.subcommand() {
+        Some(("init", sub_matches)) => handle::init(sub_matches.is_present("plugin"))?,
+        _ => (),
     }
     Ok(())
 }
