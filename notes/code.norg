@@ -1,0 +1,47 @@
+@document.meta
+    title: PNP code logic
+    description: notes about PNP's code logic
+    authors: shift
+    categories: 
+    created: 2022-02-25
+    version: 0.0.11
+@end
+
+* Order of things
+  - Build `clap` cli
+  - Get matches of cli
+  - Start the cli logic
+  -- If freeze flag is absent:
+  --- Check if database.json is up to date
+  ---- Get last modification time of remote source (github)
+  ---- Get last modification time of local source
+  ----- Load database.json file if not found
+  ---- Compare modification times
+  --- Update if necessary
+  -- Handle cli matches
+
+* Cli arguments
+  cli structure:
+  `pnp <general flags> <subcommand> <subcommand flags>`
+ ** General flags
+    `--freeze` - do not update
+ ** Subcommands
+  *** init
+      Initialize pnp config file inside cwd
+      - without flags -> `cfg.jsonc`
+      - `--plugin` -> `plugin.json`
+  *** add <repository>
+      Insert plugin into cfg.jsonc inside cwd
+      - <repository> - GitHub author/name
+  *** rm <repository>
+      Removes plugin entry from cfg.jsonc inside cwd
+      - <repository> - GitHub author/name
+  *** install
+      Installs plugins specified inside `cfg.jsonc` inside cwd
+      - --preview -> temporary installation of new plugins
+  *** update
+      Update plugins specified inside `cfg.jsonc` inside cwd
+      - \[name\] -> plugin name
+  *** search
+      Search through plugin database
+      - <request> - part of `<repository>` (explained before)
