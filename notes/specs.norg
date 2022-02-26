@@ -48,5 +48,8 @@
   *** plugin_location
       This value supports following formats:
       - `owner/name` - GitHub repository link
-      - `link` - Link to remote git repository
+      - `link` - Link to remote git repository or to an archive
       - `path` - Path to a local plugin
+ ** cfg.plugnplay
+    This section contains pnp's config
+    #comment TODO
