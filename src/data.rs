@@ -98,7 +98,7 @@ impl Location {
                 let url = "https://github.com/".to_string() + &repo;
                 clone_repository(url, name).await?;
             },
-            Self::Remote(link) => clone_repository(link, name).await?,
+            Self::Remote(link) => clone_repository(link.to_string(), name).await?,
             _ => (),
         }
         Ok(())
