@@ -1,18 +1,15 @@
+use anyhow::Context;
 use serde::Deserialize;
 use std::collections::HashMap;
-use anyhow::Context;
 
+use std::process::Stdio;
 use tokio::{
-    io::{BufReader, AsyncBufReadExt},
+    io::{AsyncBufReadExt, BufReader},
     process::Command,
 };
-use std::process::Stdio;
 
-use std::io::{
-    self,
-    prelude::*
-};
 use std::fs::File;
+use std::io::{self, prelude::*};
 
 #[derive(Deserialize, Debug)]
 pub struct ConfigStructure {
@@ -44,14 +41,22 @@ impl ConfigStructure {
 
 async fn clone_repository(url: String, dir_name: String) -> anyhow::Result<()> {
     #[cfg(target_family = "windows")]
-    let dir = format!("{}/nvim-data/site/pack/pnp/{}", dirs::data_local_dir().unwrap().to_str().unwrap(), dir_name);
+    let dir = format!(
+        "{}/nvim-data/site/pack/pnp/{}",
+        dirs::data_local_dir().unwrap().to_str().unwrap(),
+        dir_name
+    );
     #[cfg(target_family = "unix")]
-    let dir = format!("{}/nvim/site/pack/pnp/{}", dirs::data_local_dir().unwrap().to_str().unwrap(), dir_name);
+    let dir = format!(
+        "{}/nvim/site/pack/pnp/{}",
+        dirs::data_local_dir().unwrap().to_str().unwrap(),
+        dir_name
+    );
     let mut cmd = Command::new("git");
-    cmd
-        .args(&["clone", &url, "--depth=1", &dir])
+    cmd.args(&["clone", &url, "--depth=1", &dir])
         .stdout(Stdio::piped());
-    println!("Command: {}",
+    println!(
+        "Command: {}",
         format!("git clone {} --depth=1 {}", &url, &dir)
     );
     let mut child = cmd.spawn()?;
@@ -84,9 +89,7 @@ impl Location {
     }
     pub fn get(&self) -> &str {
         match self {
-            Self::GitHub(val) |
-                Self::Local(val) |
-                Self::Remote(val) => val,
+            Self::GitHub(val) | Self::Local(val) | Self::Remote(val) => val,
         }
     }
     pub async fn install(&self, name: String) -> anyhow::Result<()> {
@@ -95,7 +98,7 @@ impl Location {
                 let url = "https://github.com/".to_string() + &repo;
                 clone_repository(url, name).await?;
             }
-            _ => ()
+            _ => (),
         }
         Ok(())
     }
