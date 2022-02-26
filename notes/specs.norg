@@ -27,7 +27,7 @@
     @code jsonc
     {
         "plugin_name": {
-            "plugin_location"
+            "location": "plugin_location",
             // plugin config options
             "config": "lua_string", // invalid if `config_file` exists
             "config_file": "lua_module", // invalid if `config` exists
@@ -47,9 +47,10 @@
   `plugin_location` is a bit more verbose and will be described in the section below.
   *** plugin_location
       This value supports following formats:
-      - `owner/name` - GitHub repository link
-      - `link` - Link to remote git repository or to an archive
-      - `path` - Path to a local plugin
+      - `gh:owner/name` - GitHub repository link
+      - `git:link` - Link to remote git repository
+      - `ext:link` - Link to an archive (replace `ext` with archive extension)
+      - `loc:path` - Path to a local plugin
  ** cfg.plugnplay
     This section contains pnp's config
     #comment TODO
