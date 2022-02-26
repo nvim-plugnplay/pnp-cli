@@ -21,3 +21,7 @@ features = ["full"]
 [dependencies.clap]
 version = "3.1.1"
 features = ["cargo"]
+
+[dependencies.serde]
+version = "1.0.136"
+features = ["derive"]
