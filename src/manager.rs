@@ -22,9 +22,8 @@ async fn fetch_remote_updatetime() -> anyhow::Result<i64> {
 /// Get last modification time of database.json from local source
 async fn fetch_local_updatetime() -> anyhow::Result<i64> {
     let path = format!(
-        "{}/{}",
+        "{}/pnp/database.json",
         dirs::data_dir().unwrap().to_str().unwrap(),
-        "pnp/database.json"
     );
     let prev_metadata = std::fs::metadata(&path);
     let metadata = match prev_metadata {
@@ -44,11 +43,10 @@ async fn fetch_local_updatetime() -> anyhow::Result<i64> {
 /// Download database.json
 pub async fn load_database() -> anyhow::Result<()> {
     println!("Updating database...");
-    let dir = format!("{}/{}", dirs::data_dir().unwrap().to_str().unwrap(), "pnp");
+    let dir = format!("{}/pnp", dirs::data_dir().unwrap().to_str().unwrap());
     let path = format!(
-        "{}/{}",
+        "{}/pnp/database.json",
         dirs::data_dir().unwrap().to_str().unwrap(),
-        "pnp/database.json"
     );
     let client = Client::new();
     let resp = client
