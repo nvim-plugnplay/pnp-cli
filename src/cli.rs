@@ -1,5 +1,5 @@
 use crate::handle;
-use crate::manager;
+use crate::database;
 use clap::{arg, command, Command};
 
 /// Generate clap cli command
@@ -26,6 +26,7 @@ pub fn build() -> Command<'static> {
                 .arg(arg!([name] "Plugin name")),
             Command::new("search")
                 .about("Search through plugin database")
+                .arg(arg!(--author "Filter by plugin author"))
                 .arg(arg!(<request> "Part of GitHub's author/name")),
         ])
 }
@@ -33,13 +34,14 @@ pub fn build() -> Command<'static> {
 /// Handle clap cli matches
 pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
     if !&matches.is_present("freeze") {
-        let outdated = manager::is_outdated().await?;
+        let outdated = database::is_outdated().await?;
         if outdated {
-            manager::load_database().await?;
+            database::load_database().await?;
         }
     }
     match &matches.subcommand() {
         Some(("init", sub_matches)) => handle::init(sub_matches.is_present("plugin"))?,
+        Some(("search", sub_matches)) => handle::search(sub_matches.is_present("author"))?,
         _ => (),
     }
     Ok(())
