@@ -1,10 +1,10 @@
 use crate::data::*;
-use std::fs::File;
-use std::io::{Write, BufReader};
-use std::collections::HashMap;
-use serde_json::{Value, from_reader};
-use regex::RegexSet;
 use colored::*;
+use regex::RegexSet;
+use serde_json::{from_reader, Value};
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::{BufReader, Write};
 
 use crate::database;
 use std::io::prelude::*;
@@ -45,16 +45,28 @@ pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> a
     let search_params = RegexSet::new(&params)?;
     for (plugin, metadata) in database_json.iter() {
         let author = metadata["owner"]["login"].as_str().unwrap();
-        let description = metadata["description"].as_str().unwrap_or("No description available");
+        let description = metadata["description"]
+            .as_str()
+            .unwrap_or("No description available");
         let matches = search_params.matches(description);
         if matches.into_iter().count() == params.len() {
             let author_and_sep = author.to_owned() + "/";
             if filter_by_author {
                 if author == author_name {
-                    println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+                    println!(
+                        "{}{}\n\t{}\n",
+                        author_and_sep.purple().bold(),
+                        plugin.bold(),
+                        description
+                    )
                 }
             } else {
-                println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+                println!(
+                    "{}{}\n\t{}\n",
+                    author_and_sep.purple().bold(),
+                    plugin.bold(),
+                    description
+                )
             }
         }
     }

@@ -1,9 +1,9 @@
 mod cli;
 mod data;
+mod database;
 mod fs;
 mod git;
 mod handle;
-mod database;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
