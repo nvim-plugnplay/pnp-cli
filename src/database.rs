@@ -67,3 +67,13 @@ pub async fn load_database() -> anyhow::Result<()> {
 pub async fn is_outdated() -> anyhow::Result<bool> {
     Ok(fetch_remote_updatetime().await? > fetch_local_updatetime().await?)
 }
+
+/// Retrieve local database path
+pub fn get_database_path() -> anyhow::Result<String> {
+    let path = format!(
+        "{}/{}",
+        dirs::data_dir().unwrap().to_str().unwrap(),
+        "pnp/database.json"
+    );
+    Ok(path)
+}

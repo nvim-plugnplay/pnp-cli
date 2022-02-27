@@ -5,10 +5,12 @@ edition = "2021"
 
 [dependencies]
 dirs = "4.0.0"
+colored = "2"
 serde_json = "1.0.79"
 chrono = "0.4.19"
 filetime = "0.2.15"
 anyhow = "1.0.55"
+regex = { version = "1.5", default-features = false, features = ["std"] }
 reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1", features = ["full"] }
 clap = { version = "3.1.1", features = ["cargo"] }

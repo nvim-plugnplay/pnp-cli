@@ -3,7 +3,7 @@ mod data;
 mod fs;
 mod git;
 mod handle;
-mod manager;
+mod database;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
