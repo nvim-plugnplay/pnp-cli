@@ -1,6 +1,6 @@
 mod cli;
-mod git;
 mod data;
+mod git;
 mod handle;
 mod manager;
 

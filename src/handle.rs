@@ -41,19 +41,22 @@ pub async fn update(name: Option<&str>) -> anyhow::Result<()> {
             PluginValue::ShortHand(loc) => loc,
             PluginValue::Verbose(verbose) => &verbose.plugin_location,
         };
-        let parsed_location = Location::new(location.into()).expect("Unknown format of plugin_location");
+        let parsed_location =
+            Location::new(location.into()).expect("Unknown format of plugin_location");
         parsed_location.update(dir_name.to_string()).await?;
         println!()
     } else {
-    for (name, value) in parsed_contents.plugins {
-        let location = match value {
-            PluginValue::ShortHand(loc) => loc,
-            PluginValue::Verbose(verbose) => verbose.plugin_location,
-        };
-        let parsed_location = Location::new(location).expect("Unknown format of plugin_location");
-        parsed_location.update(name).await?;
-        println!();
-    }}
+        for (name, value) in parsed_contents.plugins {
+            let location = match value {
+                PluginValue::ShortHand(loc) => loc,
+                PluginValue::Verbose(verbose) => verbose.plugin_location,
+            };
+            let parsed_location =
+                Location::new(location).expect("Unknown format of plugin_location");
+            parsed_location.update(name).await?;
+            println!();
+        }
+    }
 
     Ok(())
 }

@@ -33,7 +33,6 @@ impl ConfigStructure {
     }
 }
 
-
 pub enum Location {
     GitHub(String),
     Remote(String),
@@ -60,7 +59,7 @@ impl Location {
             Self::GitHub(repo) => {
                 let url = "https://github.com/".to_string() + &repo;
                 crate::git::clone(url, name).await?;
-            },
+            }
             Self::Remote(link) => crate::git::clone(link.to_string(), name).await?,
             _ => (),
         }
