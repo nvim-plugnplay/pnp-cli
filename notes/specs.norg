@@ -38,7 +38,11 @@
                 // or                          load when specified Ex command is executed
                 "command": "Cmd{Part1, Part2}",
                 "event": "VimEvent" // load when specified VimEvent is happening
-            }
+            },
+            "version": "semver version", // install specific plugin version
+            "branch": "remote branch", // install specific branch
+            "commit": "commit hash", // install using specific commit hash
+            "pin": false // whether to restrict pnp from updating this plugin
         }
     }
     @end
