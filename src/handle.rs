@@ -1,10 +1,10 @@
 use crate::data::*;
-use std::fs::File;
-use std::io::{Write, BufReader};
-use std::collections::HashMap;
-use serde_json::{Value, from_reader};
-use regex::RegexSet;
 use colored::*;
+use regex::RegexSet;
+use serde_json::{from_reader, Value};
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::{BufReader, Write};
 
 use crate::database;
 
@@ -52,10 +52,20 @@ pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> a
         if desc_matches.into_iter().count() == params.len() {
             if filter_by_author {
                 if author == author_name {
-                    println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+                    println!(
+                        "{}{}\n\t{}\n",
+                        author_and_sep.purple().bold(),
+                        plugin.bold(),
+                        description
+                    )
                 }
             } else {
-                println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+                println!(
+                    "{}{}\n\t{}\n",
+                    author_and_sep.purple().bold(),
+                    plugin.bold(),
+                    description
+                )
             }
         } else if name_matches.into_iter().count() == params.len() || params[0] == plugin {
             println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
