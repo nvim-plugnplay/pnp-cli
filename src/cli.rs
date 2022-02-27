@@ -27,7 +27,7 @@ pub fn build() -> Command<'static> {
             Command::new("search")
                 .about("Search through plugin database")
                 .arg(arg!(--author "Filter by plugin author"))
-                .arg(arg!(<request> "Part of GitHub's author/name")),
+                .arg(arg!(<request> "Part of GitHub's author/name").multiple_values(true)),
         ])
 }
 
@@ -41,7 +41,10 @@ pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
     }
     match &matches.subcommand() {
         Some(("init", sub_matches)) => handle::init(sub_matches.is_present("plugin"))?,
-        Some(("search", sub_matches)) => handle::search(sub_matches.is_present("author"))?,
+        Some(("search", sub_matches)) => {
+            let params: Vec<&str> = sub_matches.values_of("request").unwrap().collect();
+            handle::search(sub_matches.is_present("author"), params)?
+        },
         _ => (),
     }
     Ok(())

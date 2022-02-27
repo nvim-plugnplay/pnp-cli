@@ -2,7 +2,8 @@ use std::fs::File;
 use std::io::{Write, BufReader};
 use std::collections::HashMap;
 use serde_json::{Value, from_reader};
-use regex::Regex;
+use regex::RegexSet;
+use colored::*;
 
 use crate::database;
 
@@ -22,7 +23,7 @@ pub fn init(toggle: bool) -> anyhow::Result<()> {
 }
 
 /// `pnp search` logic
-pub fn search(_filter_by_author: bool) -> anyhow::Result<()> {
+pub fn search(_filter_by_author: bool, params: Vec<&str>) -> anyhow::Result<()> {
     // Custom HashMap type so we can iterate over our database
     type JsonMap = HashMap<String, Value>;
 
@@ -39,12 +40,18 @@ pub fn search(_filter_by_author: bool) -> anyhow::Result<()> {
     let buf_reader = BufReader::new(pnp_database);
     // Deserialize JSON database from reader
     let database_json: JsonMap = from_reader(buf_reader)?;
+
+    // Iterate over all plugins and filter based on search arguments
+    let search_params = RegexSet::new(&params)?;
     for (plugin, metadata) in database_json.iter() {
         let description = match metadata["description"].as_str() {
             Some(desc) => desc,
             None => "No description available",
         };
-        println!("plugin : {:?}\ndescription : {:?}", plugin, description);
+        let matches: Vec<_> = search_params.matches(description).into_iter().collect();
+        if matches.len() == params.len() {
+            println!("{}\n    {}\n", plugin.bold(), description);
+        }
     }
 
     Ok(())
