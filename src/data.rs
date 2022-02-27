@@ -2,8 +2,8 @@ use anyhow::Context;
 use serde::Deserialize;
 use std::collections::HashMap;
 
-use std::fs::File;
 use crate::fs;
+use std::fs::File;
 use std::io::{self, prelude::*};
 
 #[derive(Deserialize, Debug)]
@@ -94,7 +94,7 @@ impl Location {
                 } else {
                     crate::git::update(name).await?;
                 }
-            },
+            }
             Self::Remote(url) => {
                 let dir = crate::git::append_to_data(&format!("/site/pack/pnp/{name}"));
                 let exists = fs::Exists::new(&dir);
@@ -105,7 +105,7 @@ impl Location {
                 } else {
                     crate::git::update(name).await?;
                 }
-            },
+            }
             _ => (),
         }
 
