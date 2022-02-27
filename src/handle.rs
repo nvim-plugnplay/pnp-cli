@@ -49,10 +49,10 @@ pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> a
             let author_and_sep = author.to_owned() + "/";
             if filter_by_author {
                 if author == author_name {
-                    println!("{}{}\n    {}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+                    println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
                 }
             } else {
-                println!("{}{}\n    {}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+                println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
             }
         }
     }
