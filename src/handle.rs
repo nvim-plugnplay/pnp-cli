@@ -56,6 +56,7 @@ pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> a
             } else {
                 println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
             }
+        }
     }
 
     Ok(())
