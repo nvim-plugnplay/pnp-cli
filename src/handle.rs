@@ -23,12 +23,10 @@ pub fn init(toggle: bool) -> anyhow::Result<()> {
 }
 
 /// `pnp search` logic
-pub fn search(_filter_by_author: bool, params: Vec<&str>) -> anyhow::Result<()> {
+pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> anyhow::Result<()> {
     // Custom HashMap type so we can iterate over our database
     type JsonMap = HashMap<String, Value>;
 
-    // TODO: make the filter_by_author logic
-    //
     // Get the database path and open database if exists
     let pnp_database = match database::get_database_path() {
         Ok(database) => File::open(database)?,
@@ -44,13 +42,18 @@ pub fn search(_filter_by_author: bool, params: Vec<&str>) -> anyhow::Result<()> 
     // Iterate over all plugins and filter based on search arguments
     let search_params = RegexSet::new(&params)?;
     for (plugin, metadata) in database_json.iter() {
-        let description = match metadata["description"].as_str() {
-            Some(desc) => desc,
-            None => "No description available",
-        };
+        let author = metadata["owner"]["login"].as_str().unwrap();
+        let description = metadata["description"].as_str().unwrap_or("No description available");
         let matches: Vec<_> = search_params.matches(description).into_iter().collect();
         if matches.len() == params.len() {
-            println!("{}\n    {}\n", plugin.bold(), description);
+            let author_and_sep = author.to_owned() + "/";
+            if filter_by_author {
+                if author == author_name {
+                    println!("{}{}\n    {}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+                }
+            } else {
+                println!("{}{}\n    {}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+            }
         }
     }
 
