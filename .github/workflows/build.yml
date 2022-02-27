@@ -19,7 +19,7 @@ jobs:
           command: build
           args: --profile optimized
       - name: Upload pnp Linux binary
-        ues: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2
         with:
           name: "pnp-linux-x86_64"
           path: "target/optimized/pnp"
@@ -72,4 +72,4 @@ jobs:
           name: "pnp-windows-x86_64.exe"
           path: "target\\optimized\\pnp.exe"
           if-no-files-found: error
-          retention-days: 7s
+          retention-days: 7

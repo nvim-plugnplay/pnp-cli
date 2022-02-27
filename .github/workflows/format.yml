@@ -12,11 +12,6 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
-      - name: Install cargo-make
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: --debug cargo-make
       - uses: Swatinem/rust-cache@v1
       - name: Run cargo fmt
         uses: actions-rs/cargo@v1
