@@ -57,9 +57,7 @@ pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> a
             } else {
                 println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
             }
-        } else if name_matches.into_iter().count() == params.len() {
-            println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
-        } else if params[0] == plugin {
+        } else if name_matches.into_iter().count() == params.len() || params[0] == plugin {
             println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
         }
     }
