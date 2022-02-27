@@ -63,7 +63,7 @@ impl Location {
                 if exists.path && exists.git {
                     println!("{name} is already installed!");
                 } else {
-                    let url = "https://github.com/".to_string() + &repo;
+                    let url = "https://github.com/".to_string() + repo;
                     crate::git::clone(url, name).await?;
                 }
             }
@@ -87,7 +87,7 @@ impl Location {
                 let dir = crate::git::append_to_data(&format!("/site/pack/pnp/{name}"));
                 let exists = fs::Exists::new(&dir);
                 if !exists.path {
-                    let url = "https://github.com/".to_string() + &repo;
+                    let url = "https://github.com/".to_string() + repo;
                     crate::git::clone(url, name).await?;
                 } else if !exists.git {
                     unimplemented!(".git does not exist");
