@@ -7,7 +7,6 @@ use std::fs::File;
 use std::io::{BufReader, Write};
 
 use crate::database;
-use std::io::prelude::*;
 
 const PLUGIN_CONTENT: &str = include_str!("../templates/plugin.json");
 const CONFIG_CONTENT: &str = include_str!("../templates/cfg.jsonc");
@@ -45,12 +44,12 @@ pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> a
     let search_params = RegexSet::new(&params)?;
     for (plugin, metadata) in database_json.iter() {
         let author = metadata["owner"]["login"].as_str().unwrap();
-        let description = metadata["description"]
-            .as_str()
-            .unwrap_or("No description available");
-        let matches = search_params.matches(description);
-        if matches.into_iter().count() == params.len() {
-            let author_and_sep = author.to_owned() + "/";
+        let author_and_sep = author.to_owned() + "/";
+        let description = metadata["description"].as_str().unwrap_or("No description available");
+
+        let desc_matches = search_params.matches(description);
+        let name_matches = search_params.matches(plugin);
+        if desc_matches.into_iter().count() == params.len() {
             if filter_by_author {
                 if author == author_name {
                     println!(
@@ -68,6 +67,8 @@ pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> a
                     description
                 )
             }
+        } else if name_matches.into_iter().count() == params.len() || params[0] == plugin {
+            println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
         }
     }
 
