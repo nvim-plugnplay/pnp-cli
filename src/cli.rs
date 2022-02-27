@@ -12,12 +12,6 @@ pub fn build() -> Command<'static> {
             Command::new("init")
                 .about("Intialize config files")
                 .arg(arg!(--plugin "Initialize plugin file")),
-            Command::new("add")
-                .about("Add plugin to plugin list")
-                .arg(arg!(<repository> "GitHub author/name")),
-            Command::new("rm")
-                .about("Remove plugin from plugin list")
-                .arg(arg!(<repository> "GitHub author/name")),
             Command::new("install")
                 .about("Install plugins")
                 .arg(arg!(--preview "Temp installation")),

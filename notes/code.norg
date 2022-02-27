@@ -30,12 +30,6 @@
       Initialize pnp config file inside cwd
       - without flags -> `cfg.jsonc`
       - `--plugin` -> `plugin.json`
-  *** add <repository>
-      Insert plugin into cfg.jsonc inside cwd
-      - <repository> - GitHub author/name
-  *** rm <repository>
-      Removes plugin entry from cfg.jsonc inside cwd
-      - <repository> - GitHub author/name
   *** install
       Installs plugins specified inside `cfg.jsonc` inside cwd
       - --preview -> temporary installation of new plugins
