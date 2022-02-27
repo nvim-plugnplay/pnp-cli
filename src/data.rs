@@ -2,12 +2,6 @@ use anyhow::Context;
 use serde::Deserialize;
 use std::collections::HashMap;
 
-use std::process::Stdio;
-use tokio::{
-    io::{AsyncBufReadExt, BufReader},
-    process::Command,
-};
-
 use std::fs::File;
 use std::io::{self, prelude::*};
 
@@ -39,38 +33,6 @@ impl ConfigStructure {
     }
 }
 
-async fn clone_repository(url: String, dir_name: String) -> anyhow::Result<()> {
-    #[cfg(target_family = "windows")]
-    let dir = format!(
-        "{}/nvim-data/site/pack/pnp/{}",
-        dirs::data_local_dir().unwrap().to_str().unwrap(),
-        dir_name
-    );
-    #[cfg(target_family = "unix")]
-    let dir = format!(
-        "{}/nvim/site/pack/pnp/{}",
-        dirs::data_local_dir().unwrap().to_str().unwrap(),
-        dir_name
-    );
-    let mut cmd = Command::new("git");
-    cmd.args(&["clone", &url, "--depth=1", &dir])
-        .stdout(Stdio::piped());
-    println!(
-        "Command: {}",
-        format!("git clone {} --depth=1 {}", &url, &dir)
-    );
-    let mut child = cmd.spawn()?;
-    let stdout = child.stdout.take().unwrap();
-    let mut reader = BufReader::new(stdout).lines();
-    tokio::spawn(async move {
-        let _ = child.wait().await;
-    });
-
-    while let Some(line) = reader.next_line().await? {
-        println!("{line}");
-    }
-    Ok(())
-}
 
 pub enum Location {
     GitHub(String),
@@ -93,14 +55,27 @@ impl Location {
         }
     }
     pub async fn install(&self, name: String) -> anyhow::Result<()> {
+        println!("Installing from {}", self.get());
         match self {
             Self::GitHub(repo) => {
                 let url = "https://github.com/".to_string() + &repo;
-                clone_repository(url, name).await?;
+                crate::git::clone(url, name).await?;
             },
-            Self::Remote(link) => clone_repository(link.to_string(), name).await?,
+            Self::Remote(link) => crate::git::clone(link.to_string(), name).await?,
             _ => (),
         }
+        Ok(())
+    }
+
+    pub async fn update(&self, name: String) -> anyhow::Result<()> {
+        match self {
+            Self::GitHub(_) | Self::Remote(_) => {
+                println!("Updating from {}", self.get());
+                crate::git::update(name).await?;
+            }
+            _ => (),
+        }
+
         Ok(())
     }
 }

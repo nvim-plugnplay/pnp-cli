@@ -26,10 +26,34 @@ pub async fn install() -> anyhow::Result<()> {
             PluginValue::Verbose(verbose) => verbose.plugin_location,
         };
         let parsed_location = Location::new(location).expect("Unknown format of plugin_location");
-        println!("Installing from {}", parsed_location.get());
         parsed_location.install(name).await?;
         println!();
     }
+
+    Ok(())
+}
+
+/// `pnp update` logic
+pub async fn update(name: Option<&str>) -> anyhow::Result<()> {
+    let parsed_contents = ConfigStructure::new()?;
+    if let Some(dir_name) = name {
+        let location = match &parsed_contents.plugins[dir_name] {
+            PluginValue::ShortHand(loc) => loc,
+            PluginValue::Verbose(verbose) => &verbose.plugin_location,
+        };
+        let parsed_location = Location::new(location.into()).expect("Unknown format of plugin_location");
+        parsed_location.update(dir_name.to_string()).await?;
+        println!()
+    } else {
+    for (name, value) in parsed_contents.plugins {
+        let location = match value {
+            PluginValue::ShortHand(loc) => loc,
+            PluginValue::Verbose(verbose) => verbose.plugin_location,
+        };
+        let parsed_location = Location::new(location).expect("Unknown format of plugin_location");
+        parsed_location.update(name).await?;
+        println!();
+    }}
 
     Ok(())
 }
