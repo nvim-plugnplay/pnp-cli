@@ -5,7 +5,7 @@ use tokio::{
 
 use std::process::Stdio;
 
-fn append_to_data(append: &str) -> String {
+pub fn append_to_data(append: &str) -> String {
     let data = dirs::data_local_dir().unwrap();
     let data = data.to_str().unwrap();
     #[cfg(target_family = "windows")]
