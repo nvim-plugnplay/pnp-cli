@@ -405,6 +405,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "json_comments"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab25c689752fbb49903458495d3e71853229e262a2e6136325359e0705606483"
+
+[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -636,6 +642,7 @@ dependencies = [
  "dirs",
  "filetime",
  "regex",
+ "json_comments",
  "reqwest",
  "serde",
  "serde_json",

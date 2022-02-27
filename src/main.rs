@@ -1,4 +1,7 @@
 mod cli;
+mod data;
+mod fs;
+mod git;
 mod handle;
 mod database;
 

@@ -53,6 +53,9 @@ pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
             }
             handle::search(should_filter_by_author, &author, params)?
         },
+        Some(("install", _)) => handle::install().await?,
+        // TODO: optional `name` arg
+        Some(("update", sub_matches)) => handle::update(sub_matches.value_of("name")).await?,
         _ => (),
     }
     Ok(())

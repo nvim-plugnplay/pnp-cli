@@ -1,3 +1,4 @@
+use crate::data::*;
 use std::fs::File;
 use std::io::{Write, BufReader};
 use std::collections::HashMap;
@@ -6,6 +7,7 @@ use regex::RegexSet;
 use colored::*;
 
 use crate::database;
+use std::io::prelude::*;
 
 const PLUGIN_CONTENT: &str = include_str!("../templates/plugin.json");
 const CONFIG_CONTENT: &str = include_str!("../templates/cfg.jsonc");
@@ -54,6 +56,49 @@ pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> a
             } else {
                 println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
             }
+    }
+
+    Ok(())
+}
+
+/// `pnp install` logic
+pub async fn install() -> anyhow::Result<()> {
+    let parsed_contents = ConfigStructure::new()?;
+    for (name, value) in parsed_contents.plugins {
+        let location = match value {
+            PluginValue::ShortHand(loc) => loc,
+            PluginValue::Verbose(verbose) => verbose.plugin_location,
+        };
+        let parsed_location = Location::new(location).expect("Unknown format of plugin_location");
+        parsed_location.install(name).await?;
+        println!();
+    }
+
+    Ok(())
+}
+
+/// `pnp update` logic
+pub async fn update(name: Option<&str>) -> anyhow::Result<()> {
+    let parsed_contents = ConfigStructure::new()?;
+    if let Some(dir_name) = name {
+        let location = match &parsed_contents.plugins[dir_name] {
+            PluginValue::ShortHand(loc) => loc,
+            PluginValue::Verbose(verbose) => &verbose.plugin_location,
+        };
+        let parsed_location =
+            Location::new(location.into()).expect("Unknown format of plugin_location");
+        parsed_location.update(dir_name.to_string()).await?;
+        println!()
+    } else {
+        for (name, value) in parsed_contents.plugins {
+            let location = match value {
+                PluginValue::ShortHand(loc) => loc,
+                PluginValue::Verbose(verbose) => verbose.plugin_location,
+            };
+            let parsed_location =
+                Location::new(location).expect("Unknown format of plugin_location");
+            parsed_location.update(name).await?;
+            println!();
         }
     }
 
