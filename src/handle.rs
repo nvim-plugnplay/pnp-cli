@@ -44,8 +44,8 @@ pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> a
     for (plugin, metadata) in database_json.iter() {
         let author = metadata["owner"]["login"].as_str().unwrap();
         let description = metadata["description"].as_str().unwrap_or("No description available");
-        let matches: Vec<_> = search_params.matches(description).into_iter().collect();
-        if matches.len() == params.len() {
+        let matches = search_params.matches(description);
+        if matches.into_iter().count() == params.len() {
             let author_and_sep = author.to_owned() + "/";
             if filter_by_author {
                 if author == author_name {
