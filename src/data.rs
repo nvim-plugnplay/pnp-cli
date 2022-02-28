@@ -58,7 +58,7 @@ impl Location {
         println!("Installing from {}", self.get());
         match self {
             Self::GitHub(repo) => {
-                let dir = crate::git::append_to_data(&format!("/site/pack/pnp/{name}"));
+                let dir = crate::git::append_to_data(&format!("/site/pack/pnp/opt/{name}"));
                 let exists = fs::Exists::new(&dir);
                 if exists.path && exists.git {
                     println!("{name} is already installed!");
@@ -68,7 +68,7 @@ impl Location {
                 }
             }
             Self::Remote(link) => {
-                let dir = crate::git::append_to_data(&format!("/site/pack/pnp/{name}"));
+                let dir = crate::git::append_to_data(&format!("/site/pack/pnp/opt/{name}"));
                 let exists = fs::Exists::new(&dir);
                 if exists.path && exists.git {
                     println!("{name} is already installed!");
@@ -84,7 +84,7 @@ impl Location {
     pub async fn update(&self, name: String) -> anyhow::Result<()> {
         match self {
             Self::GitHub(repo) => {
-                let dir = crate::git::append_to_data(&format!("/site/pack/pnp/{name}"));
+                let dir = crate::git::append_to_data(&format!("/site/pack/pnp/opt/{name}"));
                 let exists = fs::Exists::new(&dir);
                 if !exists.path {
                     let url = "https://github.com/".to_string() + repo;
@@ -96,7 +96,7 @@ impl Location {
                 }
             }
             Self::Remote(url) => {
-                let dir = crate::git::append_to_data(&format!("/site/pack/pnp/{name}"));
+                let dir = crate::git::append_to_data(&format!("/site/pack/pnp/opt/{name}"));
                 let exists = fs::Exists::new(&dir);
                 if !exists.path {
                     crate::git::clone(url.into(), name).await?;

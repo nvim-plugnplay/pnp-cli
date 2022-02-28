@@ -17,7 +17,7 @@ pub fn append_to_data(append: &str) -> String {
 }
 
 pub async fn clone(url: String, dir_name: String) -> anyhow::Result<()> {
-    let data_appendix = format!("/site/pack/pnp/{dir_name}");
+    let data_appendix = format!("/site/pack/pnp/opt/{dir_name}");
     let dir = append_to_data(&data_appendix);
     let mut cmd = Command::new("git");
     cmd.args(&["clone", &url, "--depth=1", &dir])
@@ -37,7 +37,7 @@ pub async fn clone(url: String, dir_name: String) -> anyhow::Result<()> {
 }
 
 pub async fn update(dir_name: String) -> anyhow::Result<()> {
-    let data_appendix = format!("/site/pack/pnp/{dir_name}");
+    let data_appendix = format!("/site/pack/pnp/opt/{dir_name}");
     let dir = append_to_data(&data_appendix);
     let mut cmd = Command::new("git");
     cmd.args(&["pull", "origin", "main"])

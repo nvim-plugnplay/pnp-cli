@@ -2,6 +2,12 @@
 name = "pnp"
 version = "0.1.0"
 edition = "2021"
+authors = ["shift-d", "NTBBloodBath"]
+description = "NeoVim plugin manager built with Rust"
+repository = "https://github.com/nvim-plugnplay/pnp-cli"
+homepage = "https://github.com/nvim-plugnplay/pnp-cli"
+license = "GPL-3.0"
+include = ["src/*", "Cargo.*", "license", "templates/*"]
 
 [dependencies]
 dirs = "4.0.0"
@@ -16,3 +22,8 @@ tokio = { version = "1", features = ["full"] }
 clap = { version = "3.1.1", features = ["cargo"] }
 serde = { version = "1.0.136", features = ["derive"] }
 json_comments = "0.2.0"
+
+[profile.optimized]   # Size optimizations that hurt build speed
+inherits = "release"  # Inherit from release profile
+opt-level = "z"       # Optimize for execututable size
+codegen-units = 1     # Build speed -> executable size

@@ -1,5 +1,5 @@
-use crate::handle;
 use crate::database;
+use crate::handle;
 use clap::{arg, command, Command};
 
 /// Generate clap cli command
@@ -20,8 +20,15 @@ pub fn build() -> Command<'static> {
                 .arg(arg!([name] "Plugin name")),
             Command::new("search")
                 .about("Search through plugin database")
-                .arg(arg!(--author <name> "Filter by plugin author").required(false).takes_value(true))
-                .arg(arg!([request] "Part of GitHub's author/name").multiple_values(true)),
+                .arg(
+                    arg!(--author <name> "Filter by plugin author")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    arg!([request] "Part of GitHub's author/name")
+                        .multiple_values(true),
+                ),
             Command::new("info")
                 .about("Show information about a specific plugin")
                 .arg(arg!(<name> "Plugin name")),
