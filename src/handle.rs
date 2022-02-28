@@ -3,11 +3,6 @@ use std::fs::File;
 use std::io::Write;
 use regex::RegexSet;
 use colored::*;
-use regex::RegexSet;
-use serde_json::{from_reader, Value};
-use std::collections::HashMap;
-use std::fs::File;
-use std::io::{BufReader, Write};
 
 use crate::database::{self, JsonMap};
 
