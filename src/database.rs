@@ -1,10 +1,16 @@
 use filetime::FileTime;
 use reqwest::Client;
-use serde_json::Value;
+use serde_json::{from_reader, Value};
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::BufReader;
 
 const DATABASE_COMMITS_LINK: &str = "https://api.github.com/repos/nvim-plugnplay/database/commits?path=database.json&page=1&per_page=1";
 const DATABASE_RAW_LINK: &str =
     "https://raw.githubusercontent.com/nvim-plugnplay/database/main/database.json";
+
+// Custom HashMap type so we can iterate over our database
+pub type JsonMap = HashMap<String, Value>;
 
 /// Get last modification time of database.json from remote source
 async fn fetch_remote_updatetime() -> anyhow::Result<i64> {
@@ -76,4 +82,20 @@ pub fn get_database_path() -> anyhow::Result<String> {
         "pnp/database.json"
     );
     Ok(path)
+}
+
+/// Get the local database contents
+pub fn read_database() -> anyhow::Result<JsonMap> {
+    // Get the database path and open database if exists
+    let pnp_database = match get_database_path() {
+        Ok(database) => File::open(database)?,
+        Err(e) => {
+            panic!("{e:?}");
+        }
+    };
+    // Read database contents and convert it to a string
+    let buf_reader = BufReader::new(pnp_database);
+    // Deserialize JSON database from reader
+    let database_json: JsonMap = from_reader(buf_reader)?;
+    Ok(database_json)
 }
