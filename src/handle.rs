@@ -116,7 +116,7 @@ pub fn info(plugin_name: &str) -> anyhow::Result<()> {
         // - size (missing field, not implemented yet)
         let repo = metadata["clone_url"].as_str().unwrap().replace(".git", "");
         let maintainer = metadata["owner"]["login"].as_str().unwrap();
-        let description = metadata["description"].as_str().unwrap();
+        let description = metadata["description"].as_str().unwrap_or("No description available");
         let stars_count = metadata["stargazers_count"].as_u64().unwrap();
         let forks_count = metadata["forks_count"].as_u64().unwrap();
         let updated_date = metadata["updated_at"]
