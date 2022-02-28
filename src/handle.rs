@@ -80,17 +80,11 @@ pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> a
 
         let desc_matches = search_params.matches(description);
         let name_matches = search_params.matches(plugin);
-        if desc_matches.into_iter().count() == params.len() {
-            if filter_by_author {
-                if author == author_name {
-                    println!(
-                        "{}{}\n\t{}\n",
-                        author_and_sep.purple().bold(),
-                        plugin.bold(),
-                        description
-                    )
-                }
-            } else {
+        if (desc_matches.into_iter().count() == params.len())
+            || (name_matches.into_iter().count() == params.len())
+            || (params[0] == plugin)
+        {
+            if (!filter_by_author) || (filter_by_author && (author == author_name)) {
                 println!(
                     "{}{}\n\t{}\n",
                     author_and_sep.purple().bold(),
@@ -98,13 +92,6 @@ pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> a
                     description
                 )
             }
-        } else if name_matches.into_iter().count() == params.len() || params[0] == plugin {
-            println!(
-                "{}{}\n\t{}\n",
-                author_and_sep.purple().bold(),
-                plugin.bold(),
-                description
-            )
         }
     }
 
