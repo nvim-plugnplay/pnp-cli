@@ -1,12 +1,10 @@
 use crate::data::*;
 use std::fs::File;
-use std::io::{Write, BufReader};
-use std::collections::HashMap;
-use serde_json::{Value, from_reader};
+use std::io::Write;
 use regex::RegexSet;
 use colored::*;
 
-use crate::database;
+use crate::database::{self, JsonMap};
 
 const PLUGIN_CONTENT: &str = include_str!("../templates/plugin.json");
 const CONFIG_CONTENT: &str = include_str!("../templates/cfg.jsonc");
@@ -20,48 +18,6 @@ pub fn init(toggle: bool) -> anyhow::Result<()> {
         let mut output = File::create("./cfg.jsonc")?;
         write!(output, "{CONFIG_CONTENT}")?;
     }
-    Ok(())
-}
-
-/// `pnp search` logic
-pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> anyhow::Result<()> {
-    // Custom HashMap type so we can iterate over our database
-    type JsonMap = HashMap<String, Value>;
-
-    // Get the database path and open database if exists
-    let pnp_database = match database::get_database_path() {
-        Ok(database) => File::open(database)?,
-        Err(e) => {
-            panic!("{e:?}");
-        }
-    };
-    // Read database contents and convert it to a string
-    let buf_reader = BufReader::new(pnp_database);
-    // Deserialize JSON database from reader
-    let database_json: JsonMap = from_reader(buf_reader)?;
-
-    // Iterate over all plugins and filter based on search arguments
-    let search_params = RegexSet::new(&params)?;
-    for (plugin, metadata) in database_json.iter() {
-        let author = metadata["owner"]["login"].as_str().unwrap();
-        let author_and_sep = author.to_owned() + "/";
-        let description = metadata["description"].as_str().unwrap_or("No description available");
-
-        let desc_matches = search_params.matches(description);
-        let name_matches = search_params.matches(plugin);
-        if desc_matches.into_iter().count() == params.len() {
-            if filter_by_author {
-                if author == author_name {
-                    println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
-                }
-            } else {
-                println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
-            }
-        } else if name_matches.into_iter().count() == params.len() || params[0] == plugin {
-            println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
-        }
-    }
-
     Ok(())
 }
 
@@ -104,6 +60,84 @@ pub async fn update(name: Option<&str>) -> anyhow::Result<()> {
             parsed_location.update(name).await?;
             println!();
         }
+    }
+
+    Ok(())
+}
+
+/// `pnp search` logic
+pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> anyhow::Result<()> {
+    let database_json: JsonMap = database::read_database()?;
+
+    // Iterate over all plugins and filter based on search arguments
+    let search_params = RegexSet::new(&params)?;
+    for (plugin, metadata) in database_json.iter() {
+        let author = metadata["owner"]["login"].as_str().unwrap();
+        let author_and_sep = author.to_owned() + "/";
+        let description = metadata["description"].as_str().unwrap_or("No description available");
+
+        let desc_matches = search_params.matches(description);
+        let name_matches = search_params.matches(plugin);
+        if desc_matches.into_iter().count() == params.len() {
+            if filter_by_author {
+                if author == author_name {
+                    println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+                }
+            } else {
+                println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+            }
+        } else if name_matches.into_iter().count() == params.len() || params[0] == plugin {
+            println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+        }
+    }
+
+    Ok(())
+}
+
+// `pnp info` logic
+pub fn info(plugin_name: &str) -> anyhow::Result<()> {
+    let database_json: JsonMap = database::read_database()?;
+
+    let plugin = database_json.get_key_value(plugin_name);
+    for (_, metadata) in plugin.iter() {
+        // Metadata we want to extract:
+        // - description
+        // - clone_url
+        // - maintainer (repository owner)
+        // - updated_at (YYYY-MM-DD HH:MM:SS, we will replace some chars)
+        // - stargazers
+        // - forks_count
+        // - topics
+        // - license (missing field, remote database isn't updated with this field)
+        // - size (missing field, not implemented yet)
+        let repo = metadata["clone_url"]
+            .as_str()
+            .unwrap()
+            .replace(".git", "");
+        let maintainer = metadata["owner"]["login"].as_str().unwrap();
+        let description = metadata["description"].as_str().unwrap();
+        let stars_count = metadata["stargazers_count"].as_i64().unwrap();
+        let forks_count = metadata["forks_count"].as_i64().unwrap();
+        let updated_date = metadata["updated_at"]
+            .as_str()
+            .unwrap()
+            .replace("T", " ")
+            .replace("Z", "");
+        let topics_arr = metadata["topics"].as_array().unwrap();
+
+        // Get topics from JSON topics array
+        let mut topics: Vec<&str> = Vec::new();
+        for topic in topics_arr {
+            topics.push(topic.as_str().unwrap());
+        }
+
+        println!("{} {}", "Maintainer\t:".bold(), maintainer);
+        println!("{} {}", "Repository\t:".bold(), repo);
+        println!("{} {}", "Description\t:".bold(), description);
+        println!("{} {}", "Topics\t\t:".bold(), topics.join(", "));
+        println!("{} {}", "Stars count\t:".bold(), stars_count);
+        println!("{} {}", "Forks count\t:".bold(), forks_count);
+        println!("{} {}", "Latest update\t:".bold(), updated_date);
     }
 
     Ok(())

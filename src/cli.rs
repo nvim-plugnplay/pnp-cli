@@ -21,7 +21,10 @@ pub fn build() -> Command<'static> {
             Command::new("search")
                 .about("Search through plugin database")
                 .arg(arg!(--author <name> "Filter by plugin author").required(false).takes_value(true))
-                .arg(arg!(<request> "Part of GitHub's author/name").required(false).multiple_values(true)),
+                .arg(arg!([request] "Part of GitHub's author/name").multiple_values(true)),
+            Command::new("info")
+                .about("Show information about a specific plugin")
+                .arg(arg!(<name> "Plugin name")),
         ])
 }
 
@@ -47,6 +50,7 @@ pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
             }
             handle::search(should_filter_by_author, &author, params)?
         },
+        Some(("info", sub_matches)) => handle::info(sub_matches.value_of("name").unwrap())?,
         Some(("install", _)) => handle::install().await?,
         // TODO: optional `name` arg
         Some(("update", sub_matches)) => handle::update(sub_matches.value_of("name")).await?,
