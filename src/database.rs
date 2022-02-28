@@ -1,9 +1,9 @@
 use filetime::FileTime;
 use reqwest::Client;
-use std::io::BufReader;
-use std::fs::File;
-use std::collections::HashMap;
 use serde_json::{from_reader, Value};
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::BufReader;
 
 const DATABASE_COMMITS_LINK: &str = "https://api.github.com/repos/nvim-plugnplay/database/commits?path=database.json&page=1&per_page=1";
 const DATABASE_RAW_LINK: &str =

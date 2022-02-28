@@ -1,8 +1,8 @@
 use crate::data::*;
+use colored::*;
+use regex::RegexSet;
 use std::fs::File;
 use std::io::Write;
-use regex::RegexSet;
-use colored::*;
 
 use crate::database::{self, JsonMap};
 
@@ -74,20 +74,37 @@ pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> a
     for (plugin, metadata) in database_json.iter() {
         let author = metadata["owner"]["login"].as_str().unwrap();
         let author_and_sep = author.to_owned() + "/";
-        let description = metadata["description"].as_str().unwrap_or("No description available");
+        let description = metadata["description"]
+            .as_str()
+            .unwrap_or("No description available");
 
         let desc_matches = search_params.matches(description);
         let name_matches = search_params.matches(plugin);
         if desc_matches.into_iter().count() == params.len() {
             if filter_by_author {
                 if author == author_name {
-                    println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+                    println!(
+                        "{}{}\n\t{}\n",
+                        author_and_sep.purple().bold(),
+                        plugin.bold(),
+                        description
+                    )
                 }
             } else {
-                println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+                println!(
+                    "{}{}\n\t{}\n",
+                    author_and_sep.purple().bold(),
+                    plugin.bold(),
+                    description
+                )
             }
         } else if name_matches.into_iter().count() == params.len() || params[0] == plugin {
-            println!("{}{}\n\t{}\n", author_and_sep.purple().bold(), plugin.bold(), description)
+            println!(
+                "{}{}\n\t{}\n",
+                author_and_sep.purple().bold(),
+                plugin.bold(),
+                description
+            )
         }
     }
 
@@ -110,10 +127,7 @@ pub fn info(plugin_name: &str) -> anyhow::Result<()> {
         // - topics
         // - license (missing field, remote database isn't updated with this field)
         // - size (missing field, not implemented yet)
-        let repo = metadata["clone_url"]
-            .as_str()
-            .unwrap()
-            .replace(".git", "");
+        let repo = metadata["clone_url"].as_str().unwrap().replace(".git", "");
         let maintainer = metadata["owner"]["login"].as_str().unwrap();
         let description = metadata["description"].as_str().unwrap();
         let stars_count = metadata["stargazers_count"].as_i64().unwrap();
