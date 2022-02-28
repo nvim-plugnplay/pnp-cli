@@ -117,8 +117,8 @@ pub fn info(plugin_name: &str) -> anyhow::Result<()> {
         let repo = metadata["clone_url"].as_str().unwrap().replace(".git", "");
         let maintainer = metadata["owner"]["login"].as_str().unwrap();
         let description = metadata["description"].as_str().unwrap();
-        let stars_count = metadata["stargazers_count"].as_i64().unwrap();
-        let forks_count = metadata["forks_count"].as_i64().unwrap();
+        let stars_count = metadata["stargazers_count"].as_u64().unwrap();
+        let forks_count = metadata["forks_count"].as_u64().unwrap();
         let updated_date = metadata["updated_at"]
             .as_str()
             .unwrap()
