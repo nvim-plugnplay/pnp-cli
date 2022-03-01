@@ -1,1 +1,5 @@
+# Rust artifacts
 /target
+
+# local cfg.jsonc for testing purposes
+cfg.jsonc

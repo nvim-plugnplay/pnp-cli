@@ -1,8 +1,0 @@
-{
-    // check
-    "plugnplay": {},
-    "plugins": {
-        "neorg": "gh:nvim-neorg/neorg",
-        "scratch": "gh:shift-d/scratch.nvim"
-    }
-}
