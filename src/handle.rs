@@ -80,18 +80,13 @@ pub fn search(filter_by_author: bool, author_name: &str, params: Vec<&str>) -> a
 
         let desc_matches = search_params.matches(description);
         let name_matches = search_params.matches(plugin);
-        if (desc_matches.into_iter().count() == params.len())
-            || (name_matches.into_iter().count() == params.len())
-            || (params[0] == plugin)
-        {
-            if (!filter_by_author) || (filter_by_author && (author == author_name)) {
-                println!(
-                    "{}{}\n\t{}\n",
-                    author_and_sep.purple().bold(),
-                    plugin.bold(),
-                    description
-                )
-            }
+        if ((params[0] == plugin) || (name_matches.into_iter().count() == params.len()) || (desc_matches.into_iter().count() == params.len())) && ((author == author_name) || !filter_by_author) {
+            println!(
+                "{}{}\n\t{}\n",
+                author_and_sep.purple().bold(),
+                plugin.bold(),
+                description
+            )
         }
     }
 
