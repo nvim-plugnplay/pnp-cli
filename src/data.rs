@@ -3,9 +3,9 @@ use serde::Deserialize;
 use std::collections::HashMap;
 
 use crate::fs;
+use std::fmt;
 use std::fs::File;
 use std::io::{self, prelude::*};
-use std::fmt;
 
 #[derive(Deserialize, Debug)]
 pub struct ConfigStructure {
