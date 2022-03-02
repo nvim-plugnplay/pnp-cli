@@ -1,10 +1,11 @@
-use anyhow::Context;
+use anyhow::{Context, Error};
 use serde::Deserialize;
 use std::collections::HashMap;
 
 use crate::fs;
 use std::fs::File;
 use std::io::{self, prelude::*};
+use std::fmt;
 
 #[derive(Deserialize, Debug)]
 pub struct ConfigStructure {
@@ -49,66 +50,55 @@ impl Location {
             &_ => None,
         }
     }
-    pub fn get(&self) -> &str {
+    fn url(&self) -> anyhow::Result<String> {
         match self {
-            Self::GitHub(val) | Self::Local(val) | Self::Remote(val) => val,
+            Self::GitHub(repo) => Ok(format!("https://github.com/{repo}")),
+            Self::Remote(link) => Ok(link.to_string()),
+            _ => anyhow::private::Err(Error::msg("Unknown link format")),
         }
     }
     pub async fn install(&self, name: String) -> anyhow::Result<()> {
-        println!("Installing from {}", self.get());
-        match self {
-            Self::GitHub(repo) => {
-                let dir = crate::git::append_to_data(&format!("/site/pack/pnp/opt/{name}"));
-                let exists = fs::Exists::new(&dir);
-                if exists.path && exists.git {
-                    println!("{name} is already installed!");
-                } else {
-                    let url = "https://github.com/".to_string() + repo;
-                    crate::git::clone(url, name).await?;
-                }
-            }
-            Self::Remote(link) => {
-                let dir = crate::git::append_to_data(&format!("/site/pack/pnp/opt/{name}"));
-                let exists = fs::Exists::new(&dir);
-                if exists.path && exists.git {
-                    println!("{name} is already installed!");
-                } else {
-                    crate::git::clone(link.into(), name).await?;
-                }
-            }
-            _ => (),
+        println!("Installing from {self}");
+        if let Self::Local(_) = self {
+            return Ok(());
+        }
+        let url = self.url()?;
+        let dir = crate::git::append_to_data(&format!("/site/pack/pnp/opt/{name}"));
+        let exists = fs::Exists::new(&dir);
+        if exists.path && exists.git {
+            println!("{name} is already installed!");
+        } else {
+            crate::git::clone(url, name).await?;
         }
         Ok(())
     }
 
     pub async fn update(&self, name: String) -> anyhow::Result<()> {
-        match self {
-            Self::GitHub(repo) => {
-                let dir = crate::git::append_to_data(&format!("/site/pack/pnp/opt/{name}"));
-                let exists = fs::Exists::new(&dir);
-                if !exists.path {
-                    let url = "https://github.com/".to_string() + repo;
-                    crate::git::clone(url, name).await?;
-                } else if !exists.git {
-                    unimplemented!(".git does not exist");
-                } else {
-                    crate::git::update(name).await?;
-                }
-            }
-            Self::Remote(url) => {
-                let dir = crate::git::append_to_data(&format!("/site/pack/pnp/opt/{name}"));
-                let exists = fs::Exists::new(&dir);
-                if !exists.path {
-                    crate::git::clone(url.into(), name).await?;
-                } else if !exists.git {
-                    unimplemented!(".git does not exist");
-                } else {
-                    crate::git::update(name).await?;
-                }
-            }
-            _ => (),
+        println!("Updating from {self}");
+        if let Self::Local(_) = self {
+            return Ok(());
+        }
+        let url = self.url()?;
+        let dir = crate::git::append_to_data(&format!("/site/pack/pnp/opt/{name}"));
+        let exists = fs::Exists::new(&dir);
+        if !exists.path {
+            crate::git::clone(url, name).await?;
+        } else if !exists.git {
+            unimplemented!(".git does not exist");
+        } else {
+            crate::git::update(name).await?;
         }
 
         Ok(())
+    }
+}
+
+impl fmt::Display for Location {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::GitHub(data) | Self::Remote(data) | Self::Local(data) => {
+                write!(f, "{data}")
+            }
+        }
     }
 }
