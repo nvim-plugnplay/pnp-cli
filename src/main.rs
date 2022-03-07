@@ -4,6 +4,7 @@ mod database;
 mod fs;
 mod git;
 mod handle;
+mod symlink;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
