@@ -4,6 +4,8 @@ use std::collections::HashMap;
 
 use crate::fs;
 use std::fmt;
+use crate::git;
+use crate::symlink;
 use std::fs::File;
 use std::io::{self, prelude::*};
 
@@ -57,9 +59,18 @@ impl Location {
             _ => anyhow::private::Err(Error::msg("Unknown link format")),
         }
     }
+    fn sym_path(&self, name: String) -> Option<String> {
+        match self {
+            Self::Local(_) => Some(git::append_to_data(&format!("/pnp/{name}"))),
+            _ => None
+        }
+    }
+    // TODO: key is the same, value is different
     pub async fn install(&self, name: String) -> anyhow::Result<()> {
         println!("Installing from {self}");
-        if let Self::Local(_) = self {
+        if let Self::Local(path) = self {
+            let target = self.sym_path(name).unwrap();
+            symlink::SymLink::new(path.into(), target).create().await?;
             return Ok(());
         }
         let url = self.url()?;
