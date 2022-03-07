@@ -22,7 +22,6 @@ pub async fn clone(url: String, dir_name: String) -> anyhow::Result<()> {
     let mut cmd = Command::new("git");
     cmd.args(&["clone", &url, "--depth=1", &dir])
         .stdout(Stdio::piped());
-    println!("Command: git clone {url} --depth=1 {dir}");
     let mut child = cmd.spawn()?;
     let stdout = child.stdout.take().unwrap();
     let mut reader = BufReader::new(stdout).lines();
@@ -30,9 +29,6 @@ pub async fn clone(url: String, dir_name: String) -> anyhow::Result<()> {
         let _ = child.wait().await;
     });
 
-    while let Some(line) = reader.next_line().await? {
-        println!("{line}");
-    }
     Ok(())
 }
 

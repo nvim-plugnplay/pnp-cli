@@ -61,31 +61,34 @@ impl Location {
     }
     fn sym_path(&self, name: String) -> Option<String> {
         match self {
-            Self::Local(_) => Some(git::append_to_data(&format!("/pnp/{name}"))),
+            Self::Local(_) => Some(git::append_to_data(&format!("/site/pack/pnp/opt/{name}"))),
             _ => None
         }
     }
     // TODO: key is the same, value is different
     pub async fn install(&self, name: String) -> anyhow::Result<()> {
-        println!("Installing from {self}");
-        if let Self::Local(path) = self {
-            let target = self.sym_path(name).unwrap();
-            symlink::SymLink::new(path.into(), target).create().await?;
-            return Ok(());
-        }
-        let url = self.url()?;
         let dir = crate::git::append_to_data(&format!("/site/pack/pnp/opt/{name}"));
         let exists = fs::Exists::new(&dir);
-        if exists.path && exists.git {
-            println!("{name} is already installed!");
+        if exists.path {
+            Ok(())
         } else {
-            crate::git::clone(url, name).await?;
+            if let Self::Local(path) = self {
+                let target = self.sym_path(name).unwrap();
+                symlink::SymLink::new(path.into(), target).create().await?;
+                Ok(())
+            } else {
+                let url = self.url()?;
+                if exists.git {
+                    Ok(())
+                } else {
+                    crate::git::clone(url, name).await?;
+                    Ok(())
+                }
+            }
         }
-        Ok(())
     }
 
     pub async fn update(&self, name: String) -> anyhow::Result<()> {
-        println!("Updating from {self}");
         if let Self::Local(_) = self {
             return Ok(());
         }

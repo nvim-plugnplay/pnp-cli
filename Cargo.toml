@@ -22,6 +22,7 @@ tokio = { version = "1", features = ["full"] }
 clap = { version = "3.1.1", features = ["cargo"] }
 serde = { version = "1.0.136", features = ["derive"] }
 json_comments = "0.2.0"
+shellexpand = "2.0.0"
 
 [profile.optimized]   # Size optimizations that hurt build speed
 inherits = "release"  # Inherit from release profile

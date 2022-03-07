@@ -4,6 +4,7 @@ use tokio::{
 };
 use std::process::Stdio;
 
+// TODO: check if symlink can be created (path exists)
 pub struct SymLink {
     path: String,
     target: String,
@@ -18,7 +19,9 @@ impl SymLink {
     #[cfg(target_family = "windows")]
     fn cmd(&mut self) {
         let mut cmd = Command::new("cmd");
-        cmd.args(&["/c", "mklink", "/D", &self.path, &self.target]);
+        let path = shellexpand::tilde(&self.path).to_string().replace("/", "\\");
+        let target = self.target.replace("/", "\\");
+        cmd.args(&["/c", "mklink", "/D", &target, &path]);
         self.cmd = Some(cmd);
     }
 
@@ -30,17 +33,17 @@ impl SymLink {
     }
 
     pub async fn create(&mut self) -> anyhow::Result<()> {
+        self.cmd();
         let cmd = self.cmd.as_mut().unwrap();
-        cmd.stderr(Stdio::piped());
+        cmd.stdout(Stdio::piped());
         let mut child = cmd.spawn()?;
-        let stderr = child.stderr.take().unwrap();
+        let stderr = child.stdout.take().unwrap();
         let mut reader = BufReader::new(stderr).lines();
-        tokio::spawn(async move {
-            let _ = child.wait().await;
-        });
-
-        while let Some(line) = reader.next_line().await? {
-            println!("{line}");
+        let succeed = child.wait().await?.success();
+        if !succeed {
+            while let Some(line) = reader.next_line().await? {
+                println!("Symlink err: {line}");
+            }
         }
 
         Ok(())

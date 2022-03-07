@@ -31,7 +31,6 @@ pub async fn install() -> anyhow::Result<()> {
         };
         let parsed_location = Location::new(location).expect("Unknown format of plugin_location");
         parsed_location.install(name).await?;
-        println!();
     }
 
     Ok(())
