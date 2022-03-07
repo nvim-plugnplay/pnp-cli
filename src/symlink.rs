@@ -1,8 +1,8 @@
+use std::process::Stdio;
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
     process::Command,
 };
-use std::process::Stdio;
 
 // TODO: check if symlink can be created (path exists)
 pub struct SymLink {
@@ -13,13 +13,19 @@ pub struct SymLink {
 
 impl SymLink {
     pub fn new(path: String, target: String) -> Self {
-        Self { path, target, cmd: None }
+        Self {
+            path,
+            target,
+            cmd: None,
+        }
     }
 
     #[cfg(target_family = "windows")]
     fn cmd(&mut self) {
         let mut cmd = Command::new("cmd");
-        let path = shellexpand::tilde(&self.path).to_string().replace("/", "\\");
+        let path = shellexpand::tilde(&self.path)
+            .to_string()
+            .replace("/", "\\");
         let target = self.target.replace("/", "\\");
         cmd.args(&["/c", "mklink", "/D", &target, &path]);
         self.cmd = Some(cmd);

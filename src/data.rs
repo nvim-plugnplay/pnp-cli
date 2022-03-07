@@ -3,9 +3,9 @@ use serde::Deserialize;
 use std::collections::HashMap;
 
 use crate::fs;
-use std::fmt;
 use crate::git;
 use crate::symlink;
+use std::fmt;
 use std::fs::File;
 use std::io::{self, prelude::*};
 
@@ -62,7 +62,7 @@ impl Location {
     fn sym_path(&self, name: String) -> Option<String> {
         match self {
             Self::Local(_) => Some(git::append_to_data(&format!("/site/pack/pnp/opt/{name}"))),
-            _ => None
+            _ => None,
         }
     }
     // TODO: key is the same, value is different
