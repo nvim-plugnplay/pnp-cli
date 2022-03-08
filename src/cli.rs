@@ -41,7 +41,7 @@ pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
         }
     }
     match &matches.subcommand() {
-        Some(("init", sub_matches)) => handle::init(sub_matches.is_present("plugin"))?,
+        Some(("init", sub_matches)) => handle::init(sub_matches.is_present("plugin")).await?,
         Some(("search", sub_matches)) => {
             let mut author = String::new();
             let should_filter_by_author = sub_matches.is_present("author");

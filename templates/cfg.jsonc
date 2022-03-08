@@ -1,4 +1,6 @@
 {
     "plugnplay": {},
-    "plugins": {}
+    "plugins": {
+        "plugnplay": "gh:nvim-plugnplay/plugnplay.nvim"
+    }
 }
