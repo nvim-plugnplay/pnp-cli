@@ -25,8 +25,8 @@ impl SymLink {
         let mut cmd = Command::new("cmd");
         let path = shellexpand::tilde(&self.path)
             .to_string()
-            .replace("/", "\\");
-        let target = self.target.replace("/", "\\");
+            .replace('/', "\\");
+        let target = self.target.replace('/', "\\");
         cmd.args(&["/c", "mklink", "/D", &target, &path]);
         self.cmd = Some(cmd);
     }

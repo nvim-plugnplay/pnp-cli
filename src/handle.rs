@@ -122,8 +122,8 @@ pub fn info(plugin_name: &str) -> anyhow::Result<()> {
         let updated_date = metadata["updated_at"]
             .as_str()
             .unwrap()
-            .replace("T", " ")
-            .replace("Z", "");
+            .replace('T', " ")
+            .replace('Z', "");
         let topics_arr = metadata["topics"].as_array().unwrap();
 
         // Get topics from JSON topics array

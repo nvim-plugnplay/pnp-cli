@@ -1,7 +1,4 @@
-use tokio::{
-    io::{AsyncBufReadExt, BufReader},
-    process::Command,
-};
+use tokio::process::Command;
 
 use std::process::Stdio;
 
@@ -20,11 +17,8 @@ pub async fn clone(url: String, dir_name: String) -> anyhow::Result<()> {
     let data_appendix = format!("/site/pack/pnp/opt/{dir_name}");
     let dir = append_to_data(&data_appendix);
     let mut cmd = Command::new("git");
-    cmd.args(&["clone", &url, "--depth=1", &dir])
-        .stdout(Stdio::piped());
+    cmd.args(&["clone", &url, "--depth=1", &dir]).stdout(Stdio::piped());
     let mut child = cmd.spawn()?;
-    let stdout = child.stdout.take().unwrap();
-    let mut reader = BufReader::new(stdout).lines();
     tokio::spawn(async move {
         let _ = child.wait().await;
     });
@@ -40,15 +34,9 @@ pub async fn update(dir_name: String) -> anyhow::Result<()> {
         .current_dir(dir)
         .stdout(Stdio::piped());
     let mut child = cmd.spawn()?;
-    let stdout = child.stdout.take().unwrap();
-    let mut reader = BufReader::new(stdout).lines();
     tokio::spawn(async move {
         let _ = child.wait().await;
     });
-
-    while let Some(line) = reader.next_line().await? {
-        println!("{line}");
-    }
 
     Ok(())
 }

@@ -71,19 +71,17 @@ impl Location {
         let exists = fs::Exists::new(&dir);
         if exists.path {
             Ok(())
+        } else if let Self::Local(path) = self {
+            let target = self.sym_path(name).unwrap();
+            symlink::SymLink::new(path.into(), target).create().await?;
+            Ok(())
         } else {
-            if let Self::Local(path) = self {
-                let target = self.sym_path(name).unwrap();
-                symlink::SymLink::new(path.into(), target).create().await?;
+            let url = self.url()?;
+            if exists.git {
                 Ok(())
             } else {
-                let url = self.url()?;
-                if exists.git {
-                    Ok(())
-                } else {
-                    crate::git::clone(url, name).await?;
-                    Ok(())
-                }
+                crate::git::clone(url, name).await?;
+                Ok(())
             }
         }
     }
