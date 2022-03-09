@@ -1,6 +1,6 @@
 use anyhow::{Context, Error};
-use serde::Deserialize;
-use std::collections::HashMap;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 use crate::fs;
 use crate::git;
@@ -11,8 +11,8 @@ use std::io::{self, prelude::*};
 
 #[derive(Deserialize, Debug)]
 pub struct ConfigStructure {
-    pub plugnplay: HashMap<String, String>,
-    pub plugins: HashMap<String, PluginValue>,
+    pub plugnplay: BTreeMap<String, String>,
+    pub plugins: BTreeMap<String, PluginValue>,
 }
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
@@ -23,6 +23,20 @@ pub enum PluginValue {
 #[derive(Deserialize, Debug)]
 pub struct PluginVerbose {
     pub plugin_location: String,
+    pub config: Option<String>,
+    pub config_file: Option<String>,
+    pub load: Option<LazyLoad>,
+    pub version: Option<String>,
+    pub branch: Option<String>,
+    pub commit: Option<String>,
+    pub pin: Option<bool>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct LazyLoad {
+    pub with: Option<String>,
+    pub command: Option<String>,
+    pub event: Option<String>,
 }
 
 impl ConfigStructure {
@@ -37,6 +51,8 @@ impl ConfigStructure {
     }
 }
 
+#[derive(Debug, Serialize)]
+#[serde(untagged)]
 pub enum Location {
     GitHub(String),
     Remote(String),

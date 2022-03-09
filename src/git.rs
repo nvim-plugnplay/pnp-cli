@@ -17,7 +17,8 @@ pub async fn clone(url: String, dir_name: String) -> anyhow::Result<()> {
     let data_appendix = format!("/site/pack/pnp/opt/{dir_name}");
     let dir = append_to_data(&data_appendix);
     let mut cmd = Command::new("git");
-    cmd.args(&["clone", &url, "--depth=1", &dir]).stdout(Stdio::piped());
+    cmd.args(&["clone", &url, "--depth=1", &dir])
+        .stdout(Stdio::piped());
     let mut child = cmd.spawn()?;
     tokio::spawn(async move {
         let _ = child.wait().await;

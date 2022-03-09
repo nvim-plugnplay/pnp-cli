@@ -4,6 +4,7 @@ mod database;
 mod fs;
 mod git;
 mod handle;
+mod lockfile;
 mod symlink;
 
 #[tokio::main]
