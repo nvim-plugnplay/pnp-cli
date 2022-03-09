@@ -8,6 +8,7 @@ pub fn build() -> Command<'static> {
         .propagate_version(true)
         .arg_required_else_help(true)
         .arg(arg!(--freeze "Do not update database.json"))
+        .arg(arg!(--unlock "Do not update pnp.lock.json"))
         .subcommands(vec![
             Command::new("init")
                 .about("Intialize config files")
@@ -29,6 +30,7 @@ pub fn build() -> Command<'static> {
             Command::new("info")
                 .about("Show information about a specific plugin")
                 .arg(arg!(<name> "Plugin name")),
+            Command::new("lock").about("Directly generate pnp.lock.json"),
         ])
 }
 
@@ -40,6 +42,7 @@ pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
             database::load_database().await?;
         }
     }
+    let mut ran_lock = false;
     match &matches.subcommand() {
         Some(("init", sub_matches)) => handle::init(sub_matches.is_present("plugin")).await?,
         Some(("search", sub_matches)) => {
@@ -58,8 +61,14 @@ pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
         Some(("install", _)) => handle::install().await?,
         // TODO: optional `name` arg
         Some(("update", sub_matches)) => handle::update(sub_matches.value_of("name")).await?,
+        Some(("lock", _)) => {
+            crate::lockfile::Lock::new().await?.generate()?;
+            ran_lock = true;
+        }
         _ => (),
     }
-    crate::lockfile::Lock::new().await?.generate()?;
+    if !&matches.is_present("unlock") && !ran_lock {
+        crate::lockfile::Lock::new().await?.generate()?;
+    }
     Ok(())
 }
