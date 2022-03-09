@@ -51,7 +51,7 @@ impl ConfigStructure {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Location {
     GitHub(String),
@@ -86,6 +86,12 @@ impl Location {
             Self::GitHub(_) | Self::Remote(_) => Some(git::branch(name).await?),
             _ => None,
         })
+    }
+    pub fn is_git(&self) -> bool {
+        match self {
+            Self::GitHub(_) | Self::Remote(_) => true,
+            _ => false,
+        }
     }
     fn sym_path(&self, name: String) -> Option<String> {
         match self {

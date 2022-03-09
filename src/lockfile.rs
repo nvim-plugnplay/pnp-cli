@@ -1,10 +1,10 @@
 use crate::data;
-use serde::Serialize;
+use serde::{ Serialize, Deserialize };
 use std::fs;
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Lock(Vec<PlugItem>);
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct PlugItem {
     name: String,
     location: data::Location,
@@ -31,6 +31,7 @@ impl PlugItem {
     async fn new(name: String, value: data::PluginValue) -> anyhow::Result<Self> {
         init! {
             branch, String,
+            commit_hash, String,
             pinned_commit_hash, String,
             version, String,
             lazy_load, data::LazyLoad,
@@ -56,11 +57,28 @@ impl PlugItem {
                 data::Location::new(verbose.plugin_location).unwrap()
             }
         };
-        let commit_hash = location.commit_hash(name.clone()).await?;
-        match branch {
-            Some(_) => (),
-            None => {
-                branch = location.branch(name.clone()).await?;
+        if location.is_git() {
+            commit_hash = location.commit_hash(name.clone()).await?;
+            let previous_lockfile = Lock::load();
+            match branch {
+                Some(_) => (),
+                None => {
+                    let mut was_generated = false;
+                    if let Ok(lock) = previous_lockfile {
+                        for item in lock.0 {
+                            if item.name == name && item.branch.is_some() {
+                                was_generated = true;
+                                branch = item.branch;
+                                break
+                            }
+                        }
+
+                    }
+                    if !was_generated {
+                        branch = location.branch(name.clone()).await?;
+                    }
+                }
+
             }
         }
         Ok(Self {
@@ -77,7 +95,7 @@ impl PlugItem {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 enum ConfigType {
     Chunk(String),
@@ -101,4 +119,11 @@ impl Lock {
         serde_json::to_writer_pretty(lockfile, &self)?;
         Ok(())
     }
+
+    pub fn load() -> anyhow::Result<Self> {
+        let lockfile_raw = fs::File::open("./pnp.lock.json")?;
+        Ok(serde_json::from_reader(lockfile_raw)?)
+    }
+
 }
+
