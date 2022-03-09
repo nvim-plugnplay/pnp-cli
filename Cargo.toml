@@ -28,3 +28,4 @@ shellexpand = "2.0.0"
 inherits = "release"  # Inherit from release profile
 opt-level = "z"       # Optimize for execututable size
 codegen-units = 1     # Build speed -> executable size
+strip = true          # Remove all debug symbols
