@@ -81,6 +81,12 @@ impl Location {
             _ => None,
         })
     }
+    pub async fn branch(&self, name: String) -> anyhow::Result<Option<String>> {
+        Ok(match self {
+            Self::GitHub(_) | Self::Remote(_) => Some(git::branch(name).await?),
+            _ => None,
+        })
+    }
     fn sym_path(&self, name: String) -> Option<String> {
         match self {
             Self::Local(_) => Some(git::append_to_data(&format!("/site/pack/pnp/opt/{name}"))),

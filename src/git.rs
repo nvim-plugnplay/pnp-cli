@@ -61,3 +61,24 @@ pub async fn commit_hash(dir_name: String) -> anyhow::Result<String> {
         Err(anyhow::format_err!("Could not read commit hash"))
     }
 }
+
+pub async fn branch(dir_name: String) -> anyhow::Result<String> {
+    let data_appendix = format!("/site/pack/pnp/opt/{dir_name}");
+    let dir = append_to_data(&data_appendix);
+    let mut cmd = Command::new("git");
+    cmd.args(&["rev-parse", "--abbrev-ref", "HEAD"])
+        .current_dir(dir)
+        .stdout(Stdio::piped());
+    let mut child = cmd.spawn()?;
+    let stdout = child.stdout.take().unwrap();
+    tokio::spawn(async move {
+        let _ = child.wait().await;
+    });
+    let mut reader = BufReader::new(stdout).lines();
+
+    if let Some(line) = reader.next_line().await? {
+        Ok(line)
+    } else {
+        Err(anyhow::format_err!("Could not read current branch"))
+    }
+}

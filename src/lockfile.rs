@@ -57,6 +57,12 @@ impl PlugItem {
             }
         };
         let commit_hash = location.commit_hash(name.clone()).await?;
+        match branch {
+            Some(_) => (),
+            None => {
+                branch = location.branch(name.clone()).await?;
+            }
+        }
         Ok(Self {
             name,
             location,
