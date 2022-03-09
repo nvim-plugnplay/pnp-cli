@@ -1,5 +1,5 @@
 use crate::data;
-use serde::{ Serialize, Deserialize };
+use serde::{Deserialize, Serialize};
 use std::fs;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -69,16 +69,14 @@ impl PlugItem {
                             if item.name == name && item.branch.is_some() {
                                 was_generated = true;
                                 branch = item.branch;
-                                break
+                                break;
                             }
                         }
-
                     }
                     if !was_generated {
                         branch = location.branch(name.clone()).await?;
                     }
                 }
-
             }
         }
         Ok(Self {
@@ -124,6 +122,4 @@ impl Lock {
         let lockfile_raw = fs::File::open("./pnp.lock.json")?;
         Ok(serde_json::from_reader(lockfile_raw)?)
     }
-
 }
-
