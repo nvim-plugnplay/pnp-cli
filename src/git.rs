@@ -1,4 +1,7 @@
-use tokio::process::Command;
+use tokio::{
+    io::{AsyncBufReadExt, BufReader},
+    process::Command,
+};
 
 use std::process::Stdio;
 
@@ -20,9 +23,7 @@ pub async fn clone(url: String, dir_name: String) -> anyhow::Result<()> {
     cmd.args(&["clone", &url, "--depth=1", &dir])
         .stdout(Stdio::piped());
     let mut child = cmd.spawn()?;
-    tokio::spawn(async move {
-        let _ = child.wait().await;
-    });
+    let _ = child.wait().await;
 
     Ok(())
 }
@@ -35,9 +36,28 @@ pub async fn update(dir_name: String) -> anyhow::Result<()> {
         .current_dir(dir)
         .stdout(Stdio::piped());
     let mut child = cmd.spawn()?;
+    let _ = child.wait().await;
+
+    Ok(())
+}
+
+pub async fn commit_hash(dir_name: String) -> anyhow::Result<String> {
+    let data_appendix = format!("/site/pack/pnp/opt/{dir_name}");
+    let dir = append_to_data(&data_appendix);
+    let mut cmd = Command::new("git");
+    cmd.args(&["rev-parse", "HEAD"])
+        .current_dir(dir)
+        .stdout(Stdio::piped());
+    let mut child = cmd.spawn()?;
+    let stdout = child.stdout.take().unwrap();
     tokio::spawn(async move {
         let _ = child.wait().await;
     });
+    let mut reader = BufReader::new(stdout).lines();
 
-    Ok(())
+    if let Some(line) = reader.next_line().await? {
+        Ok(line)
+    } else {
+        Err(anyhow::format_err!("Could not read commit hash"))
+    }
 }

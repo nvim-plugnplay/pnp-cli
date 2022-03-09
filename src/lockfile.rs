@@ -28,10 +28,9 @@ macro_rules! init {
 
 // TODO: get commit hash from installed plugin
 impl PlugItem {
-    fn new(name: String, value: data::PluginValue) -> Self {
+    async fn new(name: String, value: data::PluginValue) -> anyhow::Result<Self> {
         init! {
             branch, String,
-            commit_hash, String,
             pinned_commit_hash, String,
             version, String,
             lazy_load, data::LazyLoad,
@@ -57,7 +56,8 @@ impl PlugItem {
                 data::Location::new(verbose.plugin_location).unwrap()
             }
         };
-        Self {
+        let commit_hash = location.commit_hash(name.clone()).await?;
+        Ok(Self {
             name,
             location,
             branch,
@@ -67,7 +67,7 @@ impl PlugItem {
             version,
             lazy_load,
             configuration,
-        }
+        })
     }
 }
 
@@ -79,12 +79,12 @@ enum ConfigType {
 }
 
 impl Lock {
-    pub fn new() -> anyhow::Result<Self> {
+    pub async fn new() -> anyhow::Result<Self> {
         let mut plugitems: Vec<PlugItem> = Vec::new();
         let cfg = data::ConfigStructure::new()?;
         let plugins = cfg.plugins;
         for (name, plugin_value) in plugins {
-            plugitems.push(PlugItem::new(name, plugin_value));
+            plugitems.push(PlugItem::new(name, plugin_value).await?);
         }
 
         Ok(Self(plugitems))

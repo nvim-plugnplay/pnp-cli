@@ -75,6 +75,12 @@ impl Location {
             _ => anyhow::private::Err(Error::msg("Unknown link format")),
         }
     }
+    pub async fn commit_hash(&self, name: String) -> anyhow::Result<Option<String>> {
+        Ok(match self {
+            Self::GitHub(_) | Self::Remote(_) => Some(git::commit_hash(name).await?),
+            _ => None,
+        })
+    }
     fn sym_path(&self, name: String) -> Option<String> {
         match self {
             Self::Local(_) => Some(git::append_to_data(&format!("/site/pack/pnp/opt/{name}"))),

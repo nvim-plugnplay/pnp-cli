@@ -60,6 +60,6 @@ pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
         Some(("update", sub_matches)) => handle::update(sub_matches.value_of("name")).await?,
         _ => (),
     }
-    crate::lockfile::Lock::new()?.generate()?;
+    crate::lockfile::Lock::new().await?.generate()?;
     Ok(())
 }
