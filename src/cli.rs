@@ -43,6 +43,7 @@ pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
         }
     }
     let mut ran_lock = false;
+    let mut to_lock = false;
     match &matches.subcommand() {
         Some(("init", sub_matches)) => handle::init(sub_matches.is_present("plugin")).await?,
         Some(("search", sub_matches)) => {
@@ -58,16 +59,22 @@ pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
             handle::search(should_filter_by_author, &author, params)?
         }
         Some(("info", sub_matches)) => handle::info(sub_matches.value_of("name").unwrap())?,
-        Some(("install", _)) => handle::install().await?,
+        Some(("install", _)) => {
+            handle::install().await?;
+            to_lock = true;
+        }
         // TODO: optional `name` arg
-        Some(("update", sub_matches)) => handle::update(sub_matches.value_of("name")).await?,
+        Some(("update", sub_matches)) => {
+            handle::update(sub_matches.value_of("name")).await?;
+            to_lock = true;
+        }
         Some(("lock", _)) => {
             crate::lockfile::Lock::new().await?.generate()?;
             ran_lock = true;
         }
         _ => (),
     }
-    if !&matches.is_present("unlock") && !ran_lock {
+    if !&matches.is_present("unlock") && !ran_lock && to_lock {
         crate::lockfile::Lock::new().await?.generate()?;
     }
     Ok(())

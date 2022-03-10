@@ -50,9 +50,6 @@ pub async fn commit_hash(dir_name: String) -> anyhow::Result<String> {
         .stdout(Stdio::piped());
     let mut child = cmd.spawn()?;
     let stdout = child.stdout.take().unwrap();
-    tokio::spawn(async move {
-        let _ = child.wait().await;
-    });
     let mut reader = BufReader::new(stdout).lines();
 
     if let Some(line) = reader.next_line().await? {
@@ -71,9 +68,6 @@ pub async fn branch(dir_name: String) -> anyhow::Result<String> {
         .stdout(Stdio::piped());
     let mut child = cmd.spawn()?;
     let stdout = child.stdout.take().unwrap();
-    tokio::spawn(async move {
-        let _ = child.wait().await;
-    });
     let mut reader = BufReader::new(stdout).lines();
 
     if let Some(line) = reader.next_line().await? {

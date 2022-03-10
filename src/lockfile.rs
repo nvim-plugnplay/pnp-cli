@@ -1,12 +1,12 @@
 use crate::data;
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::collections::BTreeMap;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Lock(Vec<PlugItem>);
+pub struct Lock(BTreeMap<String, PlugItem>);
 #[derive(Debug, Serialize, Deserialize)]
 struct PlugItem {
-    name: String,
     location: data::Location,
     branch: Option<String>,
     commit_hash: Option<String>,
@@ -28,7 +28,7 @@ macro_rules! init {
 
 // TODO: get commit hash from installed plugin
 impl PlugItem {
-    async fn new(name: String, value: data::PluginValue) -> anyhow::Result<Self> {
+    async fn new(name: String, value: data::PluginValue, previous_lockfile: &anyhow::Result<Lock>) -> anyhow::Result<Self> {
         init! {
             branch, String,
             commit_hash, String,
@@ -59,28 +59,27 @@ impl PlugItem {
         };
         if location.is_git() {
             commit_hash = location.commit_hash(name.clone()).await?;
-            let previous_lockfile = Lock::load();
             match branch {
                 Some(_) => (),
                 None => {
-                    let mut was_generated = false;
                     if let Ok(lock) = previous_lockfile {
-                        for item in lock.0 {
-                            if item.name == name && item.branch.is_some() {
-                                was_generated = true;
-                                branch = item.branch;
-                                break;
+                        match &lock.0.get(&name) {
+                            Some(item) => {
+                                if item.branch.is_some() {
+                                    branch = item.branch.clone();
+                                }
+                            }
+                            None => {
+                                branch = location.branch(name.clone()).await?;
                             }
                         }
-                    }
-                    if !was_generated {
+                    } else {
                         branch = location.branch(name.clone()).await?;
                     }
                 }
             }
         }
         Ok(Self {
-            name,
             location,
             branch,
             commit_hash,
@@ -102,11 +101,12 @@ enum ConfigType {
 
 impl Lock {
     pub async fn new() -> anyhow::Result<Self> {
-        let mut plugitems: Vec<PlugItem> = Vec::new();
+        let mut plugitems: BTreeMap<String, PlugItem> = BTreeMap::new();
         let cfg = data::ConfigStructure::new()?;
         let plugins = cfg.plugins;
+        let previous_lockfile = Self::load();
         for (name, plugin_value) in plugins {
-            plugitems.push(PlugItem::new(name, plugin_value).await?);
+            plugitems.insert(name.clone(), PlugItem::new(name, plugin_value, &previous_lockfile).await?);
         }
 
         Ok(Self(plugitems))
