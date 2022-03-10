@@ -1,7 +1,7 @@
 use crate::data;
 use serde::{Deserialize, Serialize};
-use std::fs;
 use std::collections::BTreeMap;
+use std::fs;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Lock(BTreeMap<String, PlugItem>);
@@ -28,7 +28,11 @@ macro_rules! init {
 
 // TODO: get commit hash from installed plugin
 impl PlugItem {
-    async fn new(name: String, value: data::PluginValue, previous_lockfile: &anyhow::Result<Lock>) -> anyhow::Result<Self> {
+    async fn new(
+        name: String,
+        value: data::PluginValue,
+        previous_lockfile: &anyhow::Result<Lock>,
+    ) -> anyhow::Result<Self> {
         init! {
             branch, String,
             commit_hash, String,
@@ -93,7 +97,6 @@ impl PlugItem {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(untagged)]
 enum ConfigType {
     Chunk(String),
     Module(String),
@@ -106,7 +109,10 @@ impl Lock {
         let plugins = cfg.plugins;
         let previous_lockfile = Self::load();
         for (name, plugin_value) in plugins {
-            plugitems.insert(name.clone(), PlugItem::new(name, plugin_value, &previous_lockfile).await?);
+            plugitems.insert(
+                name.clone(),
+                PlugItem::new(name, plugin_value, &previous_lockfile).await?,
+            );
         }
 
         Ok(Self(plugitems))
