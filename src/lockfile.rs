@@ -26,7 +26,6 @@ macro_rules! init {
     }
 }
 
-// TODO: get commit hash from installed plugin
 impl PlugItem {
     async fn new(
         name: String,
