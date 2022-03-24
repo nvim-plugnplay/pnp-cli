@@ -5,13 +5,10 @@ use tokio::{
 
 use std::process::Stdio;
 
+use crate::fs;
+
 pub fn append_to_data(append: &str) -> String {
-    let data = dirs::data_local_dir().unwrap();
-    let data = data.to_str().unwrap();
-    #[cfg(target_family = "windows")]
-    let nvim_data = format!("{data}/nvim-data");
-    #[cfg(target_family = "unix")]
-    let nvim_data = format!("{data}/nvim");
+    let nvim_data = fs::Manager::data();
 
     nvim_data + append
 }

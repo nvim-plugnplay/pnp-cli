@@ -10,7 +10,6 @@ license = "GPL-3.0"
 include = ["src/*", "Cargo.*", "license", "templates/*"]
 
 [dependencies]
-dirs = "4.0.0"
 colored = "2"
 serde_json = "1.0.79"
 chrono = "0.4.19"

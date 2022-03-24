@@ -5,6 +5,8 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
 
+use crate::fs;
+
 const DATABASE_COMMITS_LINK: &str = "https://api.github.com/repos/nvim-plugnplay/database/commits?path=database.json&page=1&per_page=1";
 const DATABASE_RAW_LINK: &str =
     "https://raw.githubusercontent.com/nvim-plugnplay/database/main/database.json";
@@ -33,7 +35,7 @@ async fn fetch_remote_updatetime() -> anyhow::Result<i64> {
 async fn fetch_local_updatetime() -> anyhow::Result<i64> {
     let path = format!(
         "{}/pnp/database.json",
-        dirs::data_dir().unwrap().to_str().unwrap(),
+        fs::Manager::cache()?,
     );
     let prev_metadata = std::fs::metadata(&path);
     let metadata = match prev_metadata {
@@ -53,11 +55,8 @@ async fn fetch_local_updatetime() -> anyhow::Result<i64> {
 /// Download database.json
 pub async fn load_database() -> anyhow::Result<()> {
     println!("Updating database...");
-    let dir = format!("{}/pnp", dirs::data_dir().unwrap().to_str().unwrap());
-    let path = format!(
-        "{}/pnp/database.json",
-        dirs::data_dir().unwrap().to_str().unwrap(),
-    );
+    let dir = format!("{}/pnp", fs::Manager::cache()?);
+    let path = format!("{}/{}", &dir, &"/database.json");
     let client = Client::new();
     let resp = client.get(DATABASE_RAW_LINK).send().await?.bytes().await?;
     std::fs::create_dir_all(dir)?;
@@ -78,7 +77,7 @@ pub async fn is_outdated() -> anyhow::Result<bool> {
 pub fn get_database_path() -> anyhow::Result<String> {
     let path = format!(
         "{}/{}",
-        dirs::data_dir().unwrap().to_str().unwrap(),
+        fs::Manager::cache()?
         "pnp/database.json"
     );
     Ok(path)
