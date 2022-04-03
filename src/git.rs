@@ -8,7 +8,7 @@ use std::process::Stdio;
 use crate::fs;
 
 pub fn append_to_data(append: &str) -> String {
-    let nvim_data = fs::Manager::data();
+    let nvim_data = fs::Manager::data().unwrap();
 
     nvim_data + append
 }

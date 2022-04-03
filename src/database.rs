@@ -33,10 +33,7 @@ async fn fetch_remote_updatetime() -> anyhow::Result<i64> {
 
 /// Get last modification time of database.json from local source
 async fn fetch_local_updatetime() -> anyhow::Result<i64> {
-    let path = format!(
-        "{}/pnp/database.json",
-        fs::Manager::cache()?,
-    );
+    let path = format!("{}/pnp/database.json", fs::Manager::cache()?,);
     let prev_metadata = std::fs::metadata(&path);
     let metadata = match prev_metadata {
         Ok(data) => data,
@@ -75,11 +72,7 @@ pub async fn is_outdated() -> anyhow::Result<bool> {
 
 /// Retrieve local database path
 pub fn get_database_path() -> anyhow::Result<String> {
-    let path = format!(
-        "{}/{}",
-        fs::Manager::cache()?
-        "pnp/database.json"
-    );
+    let path = format!("{}/{}", fs::Manager::cache()?, "pnp/database.json");
     Ok(path)
 }
 

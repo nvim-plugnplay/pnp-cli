@@ -1,5 +1,5 @@
-use std::path::Path;
 use std::env;
+use std::path::Path;
 
 pub struct Exists {
     pub path: bool,
@@ -58,4 +58,3 @@ impl Manager {
         Ok(format!("{cache}/pnp"))
     }
 }
-
