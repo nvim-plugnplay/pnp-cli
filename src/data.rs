@@ -45,7 +45,10 @@ pub enum LazyLoadValue {
 pub struct LazyLoad {
     pub with: Option<LazyLoadValue>,
     pub command: Option<LazyLoadValue>,
+    pub keybind: Option<LazyLoadValue>,
     pub event: Option<LazyLoadValue>,
+    pub filetype: Option<LazyLoadValue>,
+    pub module: Option<LazyLoadValue>,
 }
 
 impl ConfigStructure {
