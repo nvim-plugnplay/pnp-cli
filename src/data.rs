@@ -35,7 +35,7 @@ pub struct PluginVerbose {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-#[serde (untagged)]
+#[serde(untagged)]
 pub enum LazyLoadValue {
     Simple(String),
     Long(Vec<String>),
