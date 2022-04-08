@@ -14,12 +14,14 @@ pub struct ConfigStructure {
     pub plugnplay: BTreeMap<String, String>,
     pub plugins: BTreeMap<String, PluginValue>,
 }
+
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
 pub enum PluginValue {
     ShortHand(String),
     Verbose(PluginVerbose),
 }
+
 #[derive(Deserialize, Debug)]
 pub struct PluginVerbose {
     pub plugin_location: String,
@@ -33,10 +35,17 @@ pub struct PluginVerbose {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
+#[serde (untagged)]
+pub enum LazyLoadValue {
+    Simple(String),
+    Long(Vec<String>),
+}
+
+#[derive(Deserialize, Serialize, Debug)]
 pub struct LazyLoad {
-    pub with: Option<String>,
-    pub command: Option<String>,
-    pub event: Option<String>,
+    pub with: Option<LazyLoadValue>,
+    pub command: Option<LazyLoadValue>,
+    pub event: Option<LazyLoadValue>,
 }
 
 impl ConfigStructure {
