@@ -2,6 +2,10 @@ use crate::database;
 use crate::handle;
 use clap::{arg, command, Command};
 
+use tokio::process::Command as Cmd;
+
+use std::process::Stdio;
+
 /// Generate clap cli command
 pub fn build() -> Command<'static> {
     command!()
@@ -77,5 +81,10 @@ pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
     if !&matches.is_present("unlock") && !ran_lock && to_lock {
         crate::lockfile::Lock::new().await?.generate()?;
     }
+    let mut cmd = Cmd::new("nvim");
+    cmd.args(&["--headless", "-nu", "NONE", "-c", "'helptags ALL'", "-c", "qa!"])
+        .stdout(Stdio::null());
+    let mut child = cmd.spawn()?;
+    let _ = child.wait().await;
     Ok(())
 }
