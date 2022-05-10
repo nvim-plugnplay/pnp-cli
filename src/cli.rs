@@ -82,8 +82,16 @@ pub async fn handle(matches: clap::ArgMatches) -> anyhow::Result<()> {
         crate::lockfile::Lock::new().await?.generate()?;
     }
     let mut cmd = Cmd::new("nvim");
-    cmd.args(&["--headless", "-nu", "NONE", "-c", "'helptags ALL'", "-c", "qa!"])
-        .stdout(Stdio::null());
+    cmd.args(&[
+        "--headless",
+        "-nu",
+        "NONE",
+        "-c",
+        "'helptags ALL'",
+        "-c",
+        "qa!",
+    ])
+    .stdout(Stdio::null());
     let mut child = cmd.spawn()?;
     let _ = child.wait().await;
     Ok(())
