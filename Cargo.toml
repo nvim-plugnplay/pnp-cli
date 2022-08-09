@@ -1,0 +1,16 @@
+[package]
+name = "pnp"
+version = "0.1.0"
+edition = "2021"
+authors = ["shift-d", "NTBBloodBath"]
+description = "NeoVim plugin manager built with Rust"
+repository = "https://github.com/nvim-plugnplay/pnp-cli"
+homepage = "https://github.com/nvim-plugnplay/pnp-cli"
+license = "GPL-3.0"
+include = ["src/*", "Cargo.*", "license"]
+
+[profile.optimized]   # Size optimizations that hurt build speed
+inherits = "release"  # Inherit from release profile
+opt-level = "z"       # Optimize for execututable size
+codegen-units = 1     # Build speed -> executable size
+strip = true          # Remove all debug symbols
