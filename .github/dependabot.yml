@@ -8,4 +8,4 @@ updates:
       - "shift-d"
       - "NTBBloodBath"
     commit-message:
-      prefix: "chore(dependencies): "
+      prefix: "[dependabot]: "
