@@ -9,6 +9,9 @@ homepage = "https://github.com/nvim-plugnplay/pnp-cli"
 license = "GPL-3.0"
 include = ["src/*", "Cargo.*", "license"]
 
+[dependencies]
+clap = { version = "3.2.16", features = ["cargo"] }
+
 [profile.optimized]   # Size optimizations that hurt build speed
 inherits = "release"  # Inherit from release profile
 opt-level = "z"       # Optimize for execututable size
