@@ -1,5 +1,5 @@
 mod cli;
 
 fn main() {
-    cli::Application::new().run()
+    cli::Application::new().handle()
 }
